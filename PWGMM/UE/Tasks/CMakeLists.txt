@@ -21,7 +21,7 @@ o2physics_add_dpl_workflow(ue - charged
                                         PUBLIC_LINK_LIBRARIES O2::Framework O2Physics::AnalysisCore
                                           COMPONENT_NAME Analysis)
 
-      o2physics_add_dpl_workflow(flattenicity
-                                   SOURCES flattenicityTask.cxx
-                                     PUBLIC_LINK_LIBRARIES O2::Framework O2Physics::AnalysisCore
-                                       COMPONENT_NAME Analysis)
+      o2physics_add_dpl_workflow(flattenicity - task
+                                                  SOURCES flattenicityTask.cxx
+                                                    PUBLIC_LINK_LIBRARIES O2::Framework O2Physics::AnalysisCore
+                                                      COMPONENT_NAME Analysis)
