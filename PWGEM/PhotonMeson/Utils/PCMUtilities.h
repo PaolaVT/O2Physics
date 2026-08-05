@@ -30,6 +30,8 @@
 #include <Math/Vector2D.h>                       // IWYU pragma: keep (do not replace with Math/Vector2Dfwd.h)
 #include <Math/Vector2Dfwd.h>
 
+#include <GPUROOTCartesianFwd.h>
+
 #include <array>
 #include <cmath>
 
@@ -113,7 +115,7 @@ template <typename TrackPrecision = float>
 std::array<float, 2> CalculateDCAFast(const o2::track::TrackParametrizationWithError<TrackPrecision>& trk, const o2::math_utils::Point3D<float>& vtx, const float magField)
 {
 
-  std::array<float, 2> dca;
+  std::array<float, 2> dca{};
 
   // obtain circle from track in x-y plane
   const o2::track::TrackAuxPar helixPos(trk, magField);
@@ -175,7 +177,7 @@ inline std::array<float, 3> getPropMomentumFromTrackHelix(const float s, const T
   const auto phi = RecoDecay::constrainAngle<float>(track.phi() + dphi + addPhi);
 
   // Calculate px,y,z at the new propagated vertex
-  std::array<float, 3> trackP;
+  std::array<float, 3> trackP{};
   trackP[0] = std::cos(phi) * track.pt();
   trackP[1] = std::sin(phi) * track.pt();
   trackP[2] = track.tgl() * track.pt();
@@ -194,4 +196,21 @@ inline void Vtx_recalculation(o2::base::Propagator* prop, T1 lTrackPos, T2 lTrac
 
   Vtx_recalculationParCov<TrackPrecision>(prop, trackPosInformation, trackNegInformation, xyz, matCorr);
 }
+
+//_______________________________________________________________________
+/// \brief Function to calculate a score based on cosPA and PCA. The smaller the score the better the V0 Candidate
+/// \param cosPA cosine of pointing angle
+/// \param pca point of closest approach in cm
+/// \param weight how much is cosPA weighted (for pca its 1-weight). Weight has to be between 0 and 1
+/// \return final score
+inline float getScoreV0(float cosPA, float pca, float weight)
+{
+  float cosScore = 60 * std::acos(cosPA); // pointing angle in degrees, the smaller the better
+  float pcaScore = pca / 3.f;             // assume pca is between 0 and 3
+  float wCos = weight;
+  float wPca = 1.f - wCos; // random values for now
+  float score = wCos * cosScore + wPca * pcaScore;
+  return score;
+}
+
 #endif // PWGEM_PHOTONMESON_UTILS_PCMUTILITIES_H_
